@@ -54,4 +54,4 @@ This app was created to explore interactive UI development and enhance front-end
 
 ## 🚀 Live Preview:
 
-👉 []
+👉 [ https://soha-025.github.io/Language-Learning-App/]
