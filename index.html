@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinguaFlow - Language Learning App</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+      <style>
+    body {
+      font-family: 'Inter','Roboto';
+    }
+    .bg-gradient-soft {
+      background-image: linear-gradient(to bottom right, #FFBB94, #4C1D3D);
+    }
+    .tab-button {
+      transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+      border-radius: 9999px;
+    }
+    .tab-button.active {
+      background-color: #DC586D;
+      color: white;
+      box-shadow: 0 4px 10px rgba(220, 88, 109, 0.4);
+    }
+    .flashcard-container {
+      background-color: #A33757;
+      color: #FFBB94;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+    .flashcard-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px rgba(247, 120, 120, 0.968);
+    }
+    .modal-overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+    .modal-content {
+      animation: fadeInScale 0.3s ease-out forwards;
+      border-radius: 1rem;
+      background-color: #4C1D3D;
+      color: #FFBB94;
+      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.6);
+    }
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    .button-primary {
+      background-color: #f2726b;
+      color: white;
+      box-shadow: 0 4px 6px rgba(251, 149, 144, 0.3);
+    }
+    .button-primary:hover {
+      background-color: #DC586D;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 8px rgba(220, 88, 109, 0.4);
+    }
+    .button-secondary {
+      background-color: #852E4E;
+      color: #FFBB94;
+      border: 1px solid #A33757;
+    }
+    .button-secondary:hover {
+      background-color: #A33757;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+    }
+    .button-success {
+      background-color: #7e455e;
+      color: white;
+      box-shadow: 0 4px 6px rgba(130, 71, 118, 0.3);
+    }
+    .button-success:hover {
+      background-color: #cf7ca0;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 8px rgba(140, 96, 118, 0.4);
+    }
+    .input-field {
+      background-color: #ede7e5;
+      color: #7e455e;;
+      border: 1px solid #A33757;
+    }
+    .input-field::placeholder {
+      color: #f8e7e7;
+    }
+    .input-field:focus {
+      border-color: #934e4b;
+      box-shadow: 0 0 0 2px rgba(251, 149, 144, 0.4);
+    }
+    .text-primary-dark {
+      color: #7e455e;
+    }
+    .text-primary-light {
+      color: #FB9590;
+    }
+    ::selection {
+      background-color: #FB9590;
+      color: rgb(250, 109, 109);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-soft flex flex-col items-center py-10 px-4 sm:px-6 lg:px-8 text-white">
+    <div class="w-full max-w-4xl">
+        <!-- Header -->
+        <header class="w-full text-center mb-10">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-primary-dark mb-3 leading-tight">
+                LinguaFlow
+            </h1>
+            <p class="text-lg text-gray-600 mb-5">Your daily dose of language learning.</p>
+
+            <!-- Language Selection Dropdown -->
+            <div class="flex items-center justify-center space-x-2">
+                <label for="language-select" class="text-base font-medium text-gray-600">Select Language:</label>
+                <select
+                    id="language-select"
+                    class="input-field shadow-sm focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out bg-white text-gray-700"
+                >
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex space-x-3 bg-white p-1.5 rounded-full shadow-sm mb-10 border border-gray-200 justify-center">
+            <button id="flashcards-tab" class="tab-button py-2.5 px-5 text-base font-medium text-gray-600 hover:bg-gray-100 hover:text-primary-light active">
+                Flashcards
+            </button>
+            <button id="quiz-tab" class="tab-button py-2.5 px-5 text-base font-medium text-gray-600 hover:bg-gray-100 hover:text-primary-light">
+                Quiz
+            </button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="w-full bg-white p-7 rounded-lg shadow-md flex flex-col items-center border border-gray-200">
+            <!-- Content will be dynamically loaded here -->
+        </main>
+
+        <!-- Custom Modal Container -->
+        <div id="custom-modal" class="fixed inset-0 hidden items-center justify-center z-50 modal-overlay">
+            <div class="bg-white p-8 max-w-sm w-full text-center border border-gray-200 modal-content">
+                <p id="modal-message" class="text-xl font-semibold text-gray-700 mb-6"></p>
+                <button
+                    id="modal-close-button"
+                    class="button-primary py-2 px-5 rounded-md font-bold"
+                >
+                    Got It!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Data ---
+        const languageData = {
+  'English-Spanish': [
+    { id: 1, word: 'Hello', translation: 'Hola', pronunciation: 'OH-lah', category: 'Greetings' },
+    { id: 2, word: 'Goodbye', translation: 'Adiós', pronunciation: 'ah-dee-OHS', category: 'Greetings' },
+    { id: 3, word: 'Please', translation: 'Por favor', pronunciation: 'por fah-VOHR', category: 'Phrases' },
+    { id: 4, word: 'Thank you', translation: 'Gracias', pronunciation: 'GRAH-syahs', category: 'Phrases' },
+    { id: 5, word: 'Yes', translation: 'Sí', pronunciation: 'see', category: 'Vocabulary' },
+    { id: 6, word: 'No', translation: 'No', pronunciation: 'noh', category: 'Vocabulary' },
+  ],
+  'English-French': [
+    { id: 7, word: 'Hello', translation: 'Bonjour', pronunciation: 'bohn-ZHOOR', category: 'Greetings' },
+    { id: 8, word: 'Goodbye', translation: 'Au revoir', pronunciation: 'oh ruh-VWAHR', category: 'Greetings' },
+    { id: 9, word: 'Please', translation: 'S\'il vous plaît', pronunciation: 'seel voo pleh', category: 'Phrases' },
+    { id: 10, word: 'Thank you', translation: 'Merci', pronunciation: 'mehr-SEE', category: 'Phrases' },
+    { id: 11, word: 'Yes', translation: 'Oui', pronunciation: 'wee', category: 'Vocabulary' },
+    { id: 12, word: 'No', translation: 'Non', pronunciation: 'noh', category: 'Vocabulary' },
+  ],
+  'English-Urdu': [
+    { id: 13, word: 'Hello', translation: 'سلام', pronunciation: 'Salaam', category: 'Greetings' },
+    { id: 14, word: 'Goodbye', translation: 'خدا حافظ', pronunciation: 'Khuda Hafiz', category: 'Greetings' },
+    { id: 15, word: 'Please', translation: 'براہ مہربانی', pronunciation: 'Barah Mehrbani', category: 'Phrases' },
+    { id: 16, word: 'Thank you', translation: 'شکریہ', pronunciation: 'Shukriya', category: 'Phrases' },
+    { id: 17, word: 'Yes', translation: 'جی ہاں', pronunciation: 'Jee Haan', category: 'Vocabulary' },
+    { id: 18, word: 'No', translation: 'نہیں', pronunciation: 'Nahin', category: 'Vocabulary' },
+  ],
+  'English-Turkish': [
+    { id: 19, word: 'Hello', translation: 'Merhaba', pronunciation: 'mehr-hah-BAH', category: 'Greetings' },
+    { id: 20, word: 'Goodbye', translation: 'Hoşça kal', pronunciation: 'hosh-cha kahl', category: 'Greetings' },
+    { id: 21, word: 'Please', translation: 'Lütfen', pronunciation: 'LOOT-fen', category: 'Phrases' },
+    { id: 22, word: 'Thank you', translation: 'Teşekkür ederim', pronunciation: 'teh-shehk-KOOR eh-deh-REEM', category: 'Phrases' },
+    { id: 23, word: 'Yes', translation: 'Evet', pronunciation: 'EH-vet', category: 'Vocabulary' },
+    { id: 24, word: 'No', translation: 'Hayır', pronunciation: 'HAH-yuhr', category: 'Vocabulary' },
+  ],
+  'English-Scottish Gaelic': [
+    { id: 25, word: 'Hello', translation: 'Halò', pronunciation: 'hah-LOH', category: 'Greetings' },
+    { id: 26, word: 'Goodbye', translation: 'Mar sin leat', pronunciation: 'mar sheen let', category: 'Greetings' },
+    { id: 27, word: 'Please', translation: 'Mas e do thoil e', pronunciation: 'mas eh doh hol eh', category: 'Phrases' },
+    { id: 28, word: 'Thank you', translation: 'Tapadh leat', pronunciation: 'TAH-puh let', category: 'Phrases' },
+    { id: 29, word: 'Yes', translation: 'Tha', pronunciation: 'hah', category: 'Vocabulary' },
+    { id: 30, word: 'No', translation: 'Chan eil', pronunciation: 'han yail', category: 'Vocabulary' },
+  ],
+  'English-Brazilian Portuguese': [
+    { id: 31, word: 'Hello', translation: 'Olá', pronunciation: 'oh-LAH', category: 'Greetings' },
+    { id: 32, word: 'Goodbye', translation: 'Tchau', pronunciation: 'chow', category: 'Greetings' },
+    { id: 33, word: 'Please', translation: 'Por favor', pronunciation: 'por fah-VOHR', category: 'Phrases' },
+    { id: 34, word: 'Thank you', translation: 'Obrigado', pronunciation: 'oh-bree-GAH-doo', category: 'Phrases' },
+    { id: 35, word: 'Yes', translation: 'Sim', pronunciation: 'seeng', category: 'Vocabulary' },
+    { id: 36, word: 'No', translation: 'Não', pronunciation: 'nowng', category: 'Vocabulary' },
+  ],
+};
+
+
+        // --- State Variables (Managed by JavaScript directly) ---
+        let currentView = 'flashcards';
+        let selectedLanguage = localStorage.getItem('selectedLanguage') || 'English-Spanish';
+        let currentFlashcardIndex = parseInt(localStorage.getItem('currentFlashcardIndex')) || 0;
+        let showFlashcardTranslation = false;
+        let quizQuestions = [];
+        let userQuizAnswers = {};
+        let quizResults = null;
+
+        // --- DOM Elements ---
+        const mainContentDiv = document.getElementById('main-content');
+        const languageSelect = document.getElementById('language-select');
+        const flashcardsTab = document.getElementById('flashcards-tab');
+        const quizTab = document.getElementById('quiz-tab');
+        const customModal = document.getElementById('custom-modal');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCloseButton = document.getElementById('modal-close-button');
+
+        // --- Utility Functions ---
+
+        // Function to show a custom modal message
+        function showCustomModal(message) {
+            modalMessage.textContent = message;
+            customModal.classList.remove('hidden');
+            customModal.classList.add('flex');
+        }
+
+        // Function to close the custom modal
+        function closeCustomModal() {
+            customModal.classList.add('hidden');
+            customModal.classList.remove('flex');
+        }
+
+        // --- Render Functions ---
+
+        // Renders the flashcard view
+        function renderFlashcards() {
+            mainContentDiv.innerHTML = ''; // Clear previous content
+            const flashcards = languageData[selectedLanguage] || [];
+
+            if (flashcards.length === 0) {
+                mainContentDiv.innerHTML = `
+                    <p class="text-center text-gray-600 text-lg py-10">No flashcards available for the selected language. Please add data for this language.</p>
+                `;
+                return;
+            }
+
+            const currentCard = flashcards[currentFlashcardIndex];
+
+            const flashcardHtml = `
+                <h2 class="text-2xl font-bold text-gray-700 mb-7 text-center">Daily Flashcards</h2>
+                <div id="flashcard-card" class="bg-white p-8 rounded-lg shadow-md flashcard-container flex flex-col items-center justify-center min-h-[250px] w-full max-w-md mx-auto cursor-pointer border border-gray-200">
+                    <p class="text-sm text-gray-500 mb-2">${currentCard.category}</p>
+                    <h3 class="text-4xl font-bold text-gray-800 mb-4 text-center">${currentCard.word}</h3>
+                    <div id="flashcard-translation-content" class="${showFlashcardTranslation ? '' : 'hidden'}">
+                        <p class="text-2xl text-gray-700 mb-2 text-center">${currentCard.translation}</p>
+                        <p class="text-lg text-gray-500 italic text-center">(${currentCard.pronunciation})</p>
+                    </div>
+                    <p id="flashcard-tap-hint" class="text-lg text-gray-400 mt-4 ${showFlashcardTranslation ? 'hidden' : ''}">Tap to reveal translation</p>
+                </div>
+                <div class="flex justify-center space-x-3 mt-7">
+                    <button id="prev-flashcard-btn" class="button-secondary py-2.5 px-5 rounded-md font-medium flex items-center">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        Previous
+                    </button>
+                    <button id="next-flashcard-btn" class="button-primary py-2.5 px-5 rounded-md font-medium flex items-center">
+                        Next
+                        <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+                <p class="text-center text-gray-500 mt-5 text-sm">
+                    Card ${currentFlashcardIndex + 1} of ${flashcards.length}
+                </p>
+            `;
+            mainContentDiv.innerHTML = flashcardHtml;
+
+            // Add event listeners for flashcard navigation
+            document.getElementById('flashcard-card').addEventListener('click', toggleFlashcardTranslation);
+            document.getElementById('prev-flashcard-btn').addEventListener('click', prevFlashcard);
+            document.getElementById('next-flashcard-btn').addEventListener('click', nextFlashcard);
+        }
+
+        // Toggles flashcard translation visibility
+        function toggleFlashcardTranslation() {
+            showFlashcardTranslation = !showFlashcardTranslation;
+            const translationContent = document.getElementById('flashcard-translation-content');
+            const tapHint = document.getElementById('flashcard-tap-hint');
+            if (translationContent && tapHint) {
+                if (showFlashcardTranslation) {
+                    translationContent.classList.remove('hidden');
+                    tapHint.classList.add('hidden');
+                } else {
+                    translationContent.classList.add('hidden');
+                    tapHint.classList.remove('hidden');
+                }
+            }
+        }
+
+        // Navigates to the next flashcard
+        function nextFlashcard() {
+            showFlashcardTranslation = false;
+            const flashcards = languageData[selectedLanguage] || [];
+            currentFlashcardIndex = (currentFlashcardIndex + 1) % flashcards.length;
+            localStorage.setItem('currentFlashcardIndex', currentFlashcardIndex.toString());
+            renderFlashcards();
+        }
+
+        // Navigates to the previous flashcard
+        function prevFlashcard() {
+            showFlashcardTranslation = false;
+            const flashcards = languageData[selectedLanguage] || [];
+            currentFlashcardIndex = (currentFlashcardIndex - 1 + flashcards.length) % flashcards.length;
+            localStorage.setItem('currentFlashcardIndex', currentFlashcardIndex.toString());
+            renderFlashcards();
+        }
+
+        // Renders the quiz view
+        function renderQuiz() {
+            mainContentDiv.innerHTML = ''; // Clear previous content
+            const flashcards = languageData[selectedLanguage] || [];
+
+            if (flashcards.length === 0) {
+                mainContentDiv.innerHTML = `
+                    <p class="text-center text-gray-600 text-lg py-10">No quiz questions available for this language. Please add more language data or select a different language.</p>
+                `;
+                return;
+            }
+
+            // If quiz not started or results shown, generate questions
+            if (!quizResults) {
+                const numQuestions = Math.min(5, flashcards.length);
+                const shuffledFlashcards = [...flashcards].sort(() => 0.5 - Math.random());
+                quizQuestions = shuffledFlashcards.slice(0, numQuestions);
+                userQuizAnswers = {}; // Reset answers for new quiz
+            }
+
+            let quizHtml = `
+                <h2 class="text-2xl font-bold text-gray-700 mb-7 text-center">Practice Test</h2>
+                <div class="space-y-5 w-full">
+            `;
+
+            if (quizQuestions.length === 0) {
+                 quizHtml += `<p class="text-center text-gray-600 text-lg py-10">No quiz questions available for this language. Please add more language data or select a different language.</p>`;
+            } else {
+                quizQuestions.forEach((q, index) => {
+                    const userAnswer = userQuizAnswers[q.id] || '';
+                    const isCorrect = quizResults && (userAnswer.trim().toLowerCase() === q.translation.trim().toLowerCase());
+                    const feedbackClass = quizResults ? (isCorrect ? 'text-green-600' : 'text-red-600') : '';
+                    const feedbackText = quizResults ? (isCorrect ? 'Correct!' : `Incorrect. Correct answer: "${q.translation}"`) : '';
+
+                    quizHtml += `
+                        <div class="bg-gray-100 p-5 rounded-lg shadow-sm border border-gray-200">
+                            <p class="text-base font-semibold text-gray-700 mb-2">
+                                ${index + 1}. What is the translation for "${q.word}"?
+                            </p>
+                            <input
+                                type="text"
+                                id="quiz-q-${q.id}"
+                                value="${userAnswer}"
+                                class="input-field w-full shadow-sm focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out"
+                                placeholder="Type your answer here"
+                                ${quizResults ? 'disabled' : ''}
+                            />
+                            <p class="mt-2 text-sm ${feedbackClass}">${feedbackText}</p>
+                        </div>
+                    `;
+                });
+
+                if (!quizResults) {
+                    quizHtml += `
+                        <div class="flex justify-center mt-7">
+                            <button id="submit-quiz-btn" class="button-success py-2.5 px-7 rounded-md font-bold">
+                                Submit Quiz
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    quizHtml += `
+                        <div class="mt-7 text-center">
+                            <h3 class="text-xl font-bold text-gray-700 mb-3">Your Score: ${quizResults.score} / ${quizResults.total}</h3>
+                            <button id="back-to-flashcards-btn" class="button-primary py-2.5 px-7 rounded-md font-bold">
+                                Back to Flashcards
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+            quizHtml += `</div>`;
+            mainContentDiv.innerHTML = quizHtml;
+
+            // Add event listeners for quiz
+            if (!quizResults) {
+                document.getElementById('submit-quiz-btn').addEventListener('click', submitQuiz);
+                quizQuestions.forEach(q => {
+                    document.getElementById(`quiz-q-${q.id}`).addEventListener('input', (e) => {
+                        userQuizAnswers[q.id] = e.target.value;
+                    });
+                });
+            } else {
+                document.getElementById('back-to-flashcards-btn').addEventListener('click', () => {
+                    currentView = 'flashcards';
+                    quizResults = null; // Reset quiz results
+                    updateActiveTab();
+                    renderContent();
+                });
+            }
+        }
+
+        // Submits the quiz and calculates results
+        function submitQuiz() {
+            let correctCount = 0;
+            const results = quizQuestions.map((q) => {
+                const userAnswer = userQuizAnswers[q.id] ? userQuizAnswers[q.id].trim().toLowerCase() : '';
+                const correctAnswer = q.translation.trim().toLowerCase();
+                const isCorrect = userAnswer === correctAnswer;
+                if (isCorrect) {
+                    correctCount++;
+                }
+                return {
+                    question: q.word,
+                    correctAnswer: q.translation,
+                    userAnswer: userQuizAnswers[q.id] || '',
+                    isCorrect,
+                };
+            });
+            quizResults = {
+                score: correctCount,
+                total: quizQuestions.length,
+                details: results,
+            };
+            showCustomModal(`Quiz completed! You scored ${correctCount} out of ${quizQuestions.length}.`);
+            renderQuiz(); // Re-render quiz to show results
+        }
+
+        // Updates active tab styling
+        function updateActiveTab() {
+            flashcardsTab.classList.remove('active');
+            quizTab.classList.remove('active');
+            if (currentView === 'flashcards') {
+                flashcardsTab.classList.add('active');
+            } else {
+                quizTab.classList.add('active');
+            }
+        }
+
+        // Renders content based on current view
+        function renderContent() {
+            if (currentView === 'flashcards') {
+                renderFlashcards();
+            } else if (currentView === 'quiz') {
+                renderQuiz();
+            }
+        }
+
+        // --- Initialization ---
+
+        // Populate language dropdown
+        function populateLanguageDropdown() {
+            languageSelect.innerHTML = ''; // Clear existing options
+            Object.keys(languageData).forEach(langKey => {
+                const option = document.createElement('option');
+                option.value = langKey;
+                option.textContent = langKey.replace('-', ' to ');
+                languageSelect.appendChild(option);
+            });
+            languageSelect.value = selectedLanguage; // Set selected language
+        }
+
+        // Event Listeners for Tabs
+        flashcardsTab.addEventListener('click', () => {
+            currentView = 'flashcards';
+            quizResults = null; // Reset quiz results when switching back
+            updateActiveTab();
+            renderContent();
+        });
+
+        quizTab.addEventListener('click', () => {
+            currentView = 'quiz';
+            updateActiveTab();
+            renderContent();
+        });
+
+        // Event Listener for Language Selection
+        languageSelect.addEventListener('change', (e) => {
+            selectedLanguage = e.target.value;
+            localStorage.setItem('selectedLanguage', selectedLanguage);
+            currentFlashcardIndex = 0; // Reset flashcard index on language change
+            showFlashcardTranslation = false; // Hide translation
+            quizResults = null; // Reset quiz results
+            userQuizAnswers = {}; // Reset user answers
+            renderContent();
+        });
+
+        // Event Listener for Modal Close Button
+        modalCloseButton.addEventListener('click', closeCustomModal);
+
+        // Initial render on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            populateLanguageDropdown();
+            updateActiveTab();
+            renderContent();
+        });
+    </script>
+</body>
+</html>
