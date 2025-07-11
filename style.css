@@ -1,0 +1,104 @@
+<!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+<link rel="stylesheet" href="style.css">
+<style>
+    body {
+      font-family: 'Inter','Roboto';
+    }
+    .bg-gradient-soft {
+      background-image: linear-gradient(to bottom right, #FFBB94, #4C1D3D);
+    }
+    .tab-button {
+      transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+      border-radius: 9999px;
+    }
+    .tab-button.active {
+      background-color: #DC586D;
+      color: white;
+      box-shadow: 0 4px 10px rgba(220, 88, 109, 0.4);
+    }
+    .flashcard-container {
+      background-color: #A33757;
+      color: #FFBB94;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+    .flashcard-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px rgba(247, 120, 120, 0.968);
+    }
+    .modal-overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+    .modal-content {
+      animation: fadeInScale 0.3s ease-out forwards;
+      border-radius: 1rem;
+      background-color: #4C1D3D;
+      color: #FFBB94;
+      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.6);
+    }
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    .button-primary {
+      background-color: #f2726b;
+      color: white;
+      box-shadow: 0 4px 6px rgba(251, 149, 144, 0.3);
+    }
+    .button-primary:hover {
+      background-color: #DC586D;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 8px rgba(220, 88, 109, 0.4);
+    }
+    .button-secondary {
+      background-color: #852E4E;
+      color: #FFBB94;
+      border: 1px solid #A33757;
+    }
+    .button-secondary:hover {
+      background-color: #A33757;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+    }
+    .button-success {
+      background-color: #7e455e;
+      color: white;
+      box-shadow: 0 4px 6px rgba(130, 71, 118, 0.3);
+    }
+    .button-success:hover {
+      background-color: #cf7ca0;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 8px rgba(140, 96, 118, 0.4);
+    }
+    .input-field {
+      background-color: #ede7e5;
+      color: #7e455e;;
+      border: 1px solid #A33757;
+    }
+    .input-field::placeholder {
+      color: #f8e7e7;
+    }
+    .input-field:focus {
+      border-color: #934e4b;
+      box-shadow: 0 0 0 2px rgba(251, 149, 144, 0.4);
+    }
+    .text-primary-dark {
+      color: #7e455e;
+    }
+    .text-primary-light {
+      color: #FB9590;
+    }
+    ::selection {
+      background-color: #FB9590;
+      color: rgb(250, 109, 109);
+    }
+  </style>
